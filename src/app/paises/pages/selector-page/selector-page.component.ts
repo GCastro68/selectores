@@ -3,6 +3,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { PaisesService } from '../../services/paises.service';
 import { PaisSmall } from '../../interfaces/paises.interface';
 import { switchMap, tap } from 'rxjs/operators';
+import { UpperCasePipe } from '@angular/common';
 
 @Component({
   selector: 'app-selector-page',
@@ -20,6 +21,7 @@ export class SelectorPageComponent implements OnInit {
   regiones: string[] = [];
   paises: PaisSmall[] = [];
   fronteras: string[] = [];
+  fronterasx: PaisSmall[] = [];
 
   //UI
   cargando: boolean = false;
@@ -44,7 +46,7 @@ export class SelectorPageComponent implements OnInit {
         this.cargando = false;
       });
 
-    // Cuando cambia el país
+    // Cuando cambia el país, nombre completo país
     this.miFormulario
       .get('pais')
       ?.valueChanges.pipe(
@@ -53,13 +55,12 @@ export class SelectorPageComponent implements OnInit {
           this.miFormulario.get('frontera')?.reset('');
           this.cargando = true;
         }),
-        switchMap((codigo) => this.paisesService.getPaisPorCodigo(codigo))
+        switchMap((codigo) => this.paisesService.getPaisPorCodigo(codigo)),
+        switchMap((pais) => this.paisesService.getPaisesPorCodigos(pais))
       )
-      .subscribe((pais) => {
-        if (pais) {
-          this.fronteras = pais[0].borders || [];
-          this.cargando = false;
-        }
+      .subscribe((paises) => {
+        this.fronterasx = paises;
+        this.cargando = false;
       });
   }
 
